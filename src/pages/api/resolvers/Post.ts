@@ -62,12 +62,12 @@ const post: Resolvers = {
       await removeComment(id, db);
       await removePost(id, db);
 
-      // await pubsub.publish('POST', {
-      //   post: {
-      //     mutation: 'DELETED',
-      //     data: postToBeDeleted as unknown as Post,
-      //   },
-      // });
+      await pubsub.publish('POST', {
+        post: {
+          mutation: 'DELETED',
+          data: postToBeDeleted as unknown as Post,
+        },
+      });
 
       return postToBeDeleted as unknown as Post;
     },

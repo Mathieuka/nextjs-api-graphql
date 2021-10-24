@@ -64,12 +64,13 @@ const user: Resolvers = {
         posts: [],
         comments: [],
       };
-      // await pubsub.publish('USER_CREATED', {
-      //   userCreated: {
-      //     mutation: 'CREATED',
-      //     data: newUser,
-      //   },
-      // });
+
+      await pubsub.publish('USER_CREATED', {
+        userCreated: {
+          mutation: 'CREATED',
+          data: newUser,
+        },
+      });
       db.users.push(newUser);
 
       return newUser;

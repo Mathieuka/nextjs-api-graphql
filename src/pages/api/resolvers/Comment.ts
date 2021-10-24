@@ -8,38 +8,38 @@ const comment: Resolvers = {
   Query: {
     comments: (parent, args, { db }) => db.comments,
   },
-  // Mutation: {
-  //   createComment: async (parent, { comment: { body, post, author } }, { db, pubsub }, info) => {
-  //     const userExist = db.users.some(({ id }: UserDataType) => id === author);
-  //     const postExist = db.posts.some(({ id, published }: PostDataType) => id === post && published);
-  //     if (!userExist) throw new Error('User not found');
-  //     if (!postExist) throw new Error('Post not found');
-  //
-  //     const id = uuidv4();
-  //     const newComment: CommentsDataType = {
-  //       id,
-  //       body,
-  //       author,
-  //       post,
-  //     };
-  //
-  //     if (postExist) {
-  //       // enrich the concerned post with the new comment on database
-  //       const commentedPost = db.posts.find(({ id: postId }: { id: string }) => postId === post);
-  //       commentedPost.comments.push(id);
-  //
-  //       // enrich comments table with the new comment on database
-  //       db.comments.push(newComment);
-  //     }
-  //     pubsub.publish(`comment ${post}`, {
-  //       comment: {
-  //         mutation: 'CREATED',
-  //         data: newComment,
-  //       },
-  //     });
-  //     return newComment as unknown as Comment;
-  //   },
-  // },
+  Mutation: {
+    createComment: async (parent, { comment: { body, post, author } }, { db, pubsub }, info) => {
+      const userExist = db.users.some(({ id }: UserDataType) => id === author);
+      const postExist = db.posts.some(({ id, published }: PostDataType) => id === post && published);
+      if (!userExist) throw new Error('User not found');
+      if (!postExist) throw new Error('Post not found');
+
+      const id = uuidv4();
+      const newComment: CommentsDataType = {
+        id,
+        body,
+        author,
+        post,
+      };
+
+      if (postExist) {
+        // enrich the concerned post with the new comment on database
+        const commentedPost = db.posts.find(({ id: postId }: { id: string }) => postId === post);
+        commentedPost.comments.push(id);
+
+        // enrich comments table with the new comment on database
+        db.comments.push(newComment);
+      }
+      pubsub.publish(`comment ${post}`, {
+        comment: {
+          mutation: 'CREATED',
+          data: newComment,
+        },
+      });
+      return newComment as unknown as Comment;
+    },
+  },
   Comment: {
     author: (parent, args, { db }) => {
       const result = db.users.find(({ id }: UserDataType) => id === (<unknown>parent as CommentsDataType).author);
